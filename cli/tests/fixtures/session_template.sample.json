@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "captured_at": 1716663840.5,
+  "app_ver": "9.02.90.31109",
+  "source_request_path": "tests/fixtures/sample_request.txt",
+  "xor_key_hex": "842eed08f066e6ea48b4caa991ed6ff3",
+  "tea_key_hex": "7947a1d19371b533d9f6bbc83de4c253",
+  "preamble_hex": "000102030405060708090a0b0c0d0e0f1011121314151617",
+  "tlv_fields_hex": [
+    "6669656c6430",
+    "6669656c6431",
+    "6669656c6432",
+    "6669656c6433",
+    "6669656c6434",
+    "6669656c6435"
+  ],
+  "raw_bitmap": 7,
+  "raw_ints": [0, 0, 0],
+  "trailing_hex": "0b00",
+  "field19_static": {
+    "header_4b": "4c4b8501",
+    "byte_4_5_hex": "9179",
+    "byte_10_hex": "50",
+    "bytes_11_25_hex": "be0248c5d98b8f5bf27917a057cb1a"
+  },
+  "guid": "0000000000000000abcdef0123456789",
+  "qimei36": "deadbeefcafebabe0011223344556677aabb",
+  "request_url": "https://vv6.video.qq.com/getvinfo",
+  "query_params": {
+    "vid": "j4102syn9rp",
+    "defn": "uhd",
+    "platform": "10303",
+    "sdtfrom": "v5000",
+    "encryptVer": "4.2",
+    "spvideo": "5124",
+    "screeninfo": "1080*2176",
+    "drm": "1032",
+    "hevclv": "51",
+    "spvvcfps": "31",
+    "spuhdsfrhdr": "200"
+  },
+  "cookies": "video_platform=2;main_login=wx;ctime=123;",
+  "headers": {
+    "Host": "vv6.video.qq.com",
+    "User-Agent": "qqlive",
+    "Accept-Encoding": "gzip"
+  }
+}

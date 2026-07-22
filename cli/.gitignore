@@ -1,0 +1,27 @@
+# Build
+build/
+build-*/
+dist/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+*.o
+*.obj
+*.a
+
+# Source FFmpeg vendor (clone riêng tag n8.1.1; xem cmake/FFmpeg.cmake).
+# Không commit vào repo này để tránh lồng git repo.
+third_party/ffmpeg/
+
+# Python test tooling
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store
+
+# Không commit secret runtime (chỉ commit code + vector tái sinh được)
+auth_material.json
+*.authdump.json
