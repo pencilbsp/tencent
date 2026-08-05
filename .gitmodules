@@ -1,0 +1,9 @@
+[submodule "cli/third_party/ffmpeg"]
+	path = cli/third_party/ffmpeg
+	url = https://git.ffmpeg.org/ffmpeg.git
+[submodule "cli/third_party/CLI11"]
+	path = cli/third_party/CLI11
+	url = https://github.com/CLIUtils/CLI11.git
+[submodule "cli/third_party/json"]
+	path = cli/third_party/json
+	url = https://github.com/nlohmann/json.git

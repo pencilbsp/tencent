@@ -68,9 +68,23 @@ endif()
 
 add_library(tencent::openssl_crypto ALIAS tencent_openssl_crypto)
 
-# ── Thư viện header-only đã vendor ───────────────────────────────────────────
+# ── Thư viện header-only lấy từ submodule ────────────────────────────────────
+# third_party/CLI11 (v2.4.2) và third_party/json (v3.11.3) là git submodule;
+# xem .gitmodules ở repo gốc. CLI11 không commit sẵn bản single-header nên ta
+# dùng dạng nhiều header: <CLI/CLI.hpp>.
 # Include dạng SYSTEM để cảnh báo -Wall/-Wextra của ta không nổ trong code người khác.
+set(_third_party_dirs
+  "${CMAKE_SOURCE_DIR}/third_party/CLI11/include"
+  "${CMAKE_SOURCE_DIR}/third_party/json/single_include")
+
+foreach(_dir IN LISTS _third_party_dirs)
+  if(NOT EXISTS "${_dir}")
+    message(FATAL_ERROR
+      "Thiếu ${_dir}. Chạy: git submodule update --init --recursive")
+  endif()
+endforeach()
+
 add_library(tencent_third_party_headers INTERFACE)
 target_include_directories(tencent_third_party_headers SYSTEM INTERFACE
-  "${CMAKE_SOURCE_DIR}/third_party")
+  ${_third_party_dirs})
 add_library(tencent::third_party_headers ALIAS tencent_third_party_headers)

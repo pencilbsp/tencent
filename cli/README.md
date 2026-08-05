@@ -34,7 +34,7 @@ cli/
 │       └── src/            # phản chiếu cây include
 ├── apps/cli/               # executable tencent-cli: parse tham số + in kết quả
 │   └── src/commands/       # mỗi lệnh con một file
-├── third_party/            # CLI11, nlohmann/json, ffmpeg (vendor)
+├── third_party/            # submodule: CLI11 v2.4.2, json v3.11.3, ffmpeg n8.1.1
 ├── tests/                  # ctest, phản chiếu cấu trúc libs/core
 │   ├── vectors/            # gen_vectors*.py + generated_vectors*.h
 │   └── fixtures/           # dữ liệu tổng hợp, KHÔNG chứa bí mật
@@ -42,6 +42,13 @@ cli/
 ```
 
 ## Build & test
+
+`third_party/` là git submodule (CLI11, nlohmann/json, ffmpeg). Sau khi clone
+repo lần đầu — hoặc khi CMake báo thiếu thư mục — chạy:
+
+```bash
+git submodule update --init --recursive
+```
 
 ```bash
 cmake -S . -B build
@@ -166,7 +173,7 @@ sung `cost=low`, `cdn_strategy=<CDNStrategy>` và
 được giữ nguyên. `download_proxy_version` phải được APK helper đọc từ
 `libDownloadProxy.so`, không dùng version hardcode.
 
-FFmpeg tag `n8.1.1` trong `third_party/ffmpeg` được CMake build thành static
+FFmpeg tag `n8.1.1` trong submodule `third_party/ffmpeg` được CMake build thành static
 `libavformat`, `libavcodec`, `libavutil` và link trực tiếp vào CLI. Runtime
 không gọi executable `ffmpeg` và không cần FFmpeg trong `PATH`.
 

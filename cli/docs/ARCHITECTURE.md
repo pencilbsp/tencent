@@ -7,7 +7,7 @@ nay dùng cho CLI và mai dùng lại nguyên vẹn cho GUI.
 cli/
 ├── CMakeLists.txt          chỉ lắp ráp — không chứa logic build chi tiết
 ├── cmake/                  ProjectOptions / Dependencies / FFmpeg
-├── third_party/            CLI11, nlohmann/json, ffmpeg (vendor)
+├── third_party/            submodule: CLI11, nlohmann/json, ffmpeg
 ├── libs/
 │   ├── platform/           tencent::platform — trừu tượng hoá hệ điều hành
 │   └── core/               tencent::core     — TOÀN BỘ nghiệp vụ

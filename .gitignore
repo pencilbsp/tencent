@@ -1,5 +1,26 @@
-.claude/
-.venv*/
+# Build
 build/
+build-*/
+dist/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
 analytics/
+*.o
+*.obj
+*.a
+
+# Python test tooling
+__pycache__/
+*.py[cod]
+
+# macOS
 .DS_Store
+
+# Không commit secret runtime (chỉ commit code + vector tái sinh được)
+auth_material.json
+*.authdump.json
+
+.claude/

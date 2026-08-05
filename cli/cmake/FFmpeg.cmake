@@ -1,4 +1,4 @@
-# FFmpeg.cmake — Dựng libav* tĩnh từ source FFmpeg đã vendor (tag n8.1.1).
+# FFmpeg.cmake — Dựng libav* tĩnh từ submodule third_party/ffmpeg (tag n8.1.1).
 #
 # Pipeline tải video link THẲNG vào libavformat/libavcodec/libavutil; dự án
 # KHÔNG bao giờ spawn binary `ffmpeg`. Cấu hình --disable-everything rồi bật
@@ -19,11 +19,11 @@ if(TENCENT_FFMPEG_PREFIX)
   set(_ffmpeg_prefix "${TENCENT_FFMPEG_PREFIX}")
   set(_ffmpeg_needs_build FALSE)
 else()
-  # ── Tự build từ source đã vendor ───────────────────────────────────────────
+  # ── Tự build từ source trong submodule ─────────────────────────────────────
   set(_ffmpeg_source "${CMAKE_SOURCE_DIR}/third_party/ffmpeg")
   if(NOT EXISTS "${_ffmpeg_source}/configure")
     message(FATAL_ERROR
-      "Thiếu third_party/ffmpeg. Clone tag n8.1.1 từ https://git.ffmpeg.org/ffmpeg.git")
+      "Thiếu third_party/ffmpeg. Chạy: git submodule update --init --recursive")
   endif()
   set(_ffmpeg_prefix "${CMAKE_BINARY_DIR}/ffmpeg-lib")
   set(_ffmpeg_needs_build TRUE)
