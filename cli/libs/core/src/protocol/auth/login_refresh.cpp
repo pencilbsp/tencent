@@ -71,9 +71,13 @@ std::string build_refresh_request(int64_t vuid, const std::string& vusession,
                                   const std::string& qimei36,
                                   const std::string& original_data,
                                   const std::string& sign, int third_type,
-                                  const std::string& h38) {
-  std::string third = encode_third_info(third_type, wx_app_id, wx_open_id,
-                                        wx_access_token, wx_refresh_token);
+                                  const std::string& h38,
+                                  bool include_third_info) {
+  std::string third;
+  if (include_third_info) {
+    third = encode_third_info(third_type, wx_app_id, wx_open_id,
+                              wx_access_token, wx_refresh_token);
+  }
   // sign_info chỉ dựng khi có dữ liệu (proto3, login_refresh_proto.py:169-172).
   std::string sign_info;
   bool has_sign = !qimei36.empty() || !sign.empty() || !original_data.empty() || !h38.empty();
@@ -83,7 +87,7 @@ std::string build_refresh_request(int64_t vuid, const std::string& vusession,
   out += f_int64(1, vuid);
   out += f_string(2, vusession);
   out += f_string(3, vurefresh);
-  // third_info luôn != null trong build_refresh_request → phát nếu body khác rỗng.
+  // Phone account old-video refresh uses third_info=null in LoginUtils.b(account).
   out += f_message(4, third);
   if (has_sign) out += f_message(5, sign_info);
   return out;
@@ -100,11 +104,16 @@ std::string build_refresh_frame_from_session(const model::SessionMaterial& base,
 
   std::string original_data =  build_original_data(guid, vurefresh, now_ms, rnd);
   std::string sig = sign.empty() ? make_sign(original_data, usec) : sign;
+  const bool has_third_identity =
+      !base.get("wx_app_id").empty() || !base.get("wx_open_id").empty() ||
+      !base.get("wx_access_token").empty() || !base.get("wx_refresh_token").empty();
+  const bool include_third_info =
+      base.get_int("login_type", -1) != 2 && has_third_identity;
 
   std::string body = build_refresh_request(
       vuid, base.get("vusession"), vurefresh, base.get("wx_app_id"), base.get("wx_open_id"),
       base.get("wx_access_token"), base.get("wx_refresh_token"), base.get("qimei36"),
-      original_data, sig);
+      original_data, sig, kThirdTypeWX, "", include_third_info);
 
   model::SessionMaterial s = base;            // giữ device + identity; chỉ set ts_ms.
   s.kv["ts_ms"] = std::to_string(now_ms);

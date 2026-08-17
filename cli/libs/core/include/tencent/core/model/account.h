@@ -37,6 +37,8 @@ struct Account {
 
   // identity (A) — tĩnh.
   std::string qimei36, guid, wx_app_id, wx_open_id;
+  // App login accountType: QQ=0, WX=1, PHONE=2. -1 = legacy/unknown dump.
+  int login_type = -1;
 
   // credential (B) — xoay vòng.
   std::string vusession, vurefresh, wx_access_token, wx_refresh_token;
@@ -118,7 +120,8 @@ Account load(const std::string& path);
 void save(const std::string& path, const Account& a);
 bool exists(const std::string& path);
 
-// Trả các trường BẮT BUỘC (A+B+C) còn thiếu ("" = đủ).
+// Trả các trường BẮT BUỘC còn thiếu ("" = đủ). Nhóm WeChat chỉ bắt buộc khi
+// account có dữ liệu WeChat; account đăng nhập kiểu khác không cần wx_*.
 std::string missing_required(const Account& a);
 
 // ── Đường dẫn & quản lý nhiều account ────────────────────────────────────────

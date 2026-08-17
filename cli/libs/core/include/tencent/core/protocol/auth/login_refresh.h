@@ -37,7 +37,8 @@ std::string build_refresh_request(int64_t vuid, const std::string& vusession,
                                   const std::string& qimei36,
                                   const std::string& original_data,
                                   const std::string& sign, int third_type = kThirdTypeWX,
-                                  const std::string& h38 = "");
+                                  const std::string& h38 = "",
+                                  bool include_third_info = true);
 
 // Dựng refresh frame từ Session ĐÃ CÓ đầy đủ device/app fingerprint:
 // đọc vuid/vusession/vurefresh/wx_*/qimei36/guid/usid + model/app_ver/platform…

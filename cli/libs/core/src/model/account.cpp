@@ -77,6 +77,10 @@ std::map<std::string, std::string> parse_cookie(const std::string& cookie) {
 
 // ── fill_from_cookie (mapping = ../analytics/app/login_refresh.py:load_refresh_inputs) ──
 void fill_from_cookie(Account& a, const std::map<std::string, std::string>& c) {
+  const std::string main_login = pick(c, {"main_login", "v_main_login"});
+  if (main_login == "qq") a.login_type = 0;
+  else if (main_login == "wx") a.login_type = 1;
+  else if (main_login == "phone") a.login_type = 2;
   a.vuid = pick(c, {"vuserid", "v_vuserid"});
   a.vusession = pick(c, {"vusession", "v_vusession"});
   a.vurefresh = pick(c, {"v_vurefresh", "vurefresh"});
@@ -184,13 +188,15 @@ bool parse_account_json(const std::string& blob, Account& a) {
     try { o = njson::parse(cand); } catch (...) { continue; }
     if (!o.is_object() || (!o.contains("videoUserId") && !o.contains("videoSessionKey")))
       continue;
-    bool is_wx = o.value("accountType", -1) == 1;
+    int account_type = o.value("accountType", -1);
+    bool is_wx = account_type == 1;
     int64_t ctime = o.value("videoCreateTime", static_cast<int64_t>(0));
     // Ưu tiên WX; trong cùng loại chọn videoCreateTime lớn nhất (mới nhất).
     bool better = (is_wx && !best_wx) || (is_wx == best_wx && ctime > best_ctime);
     if (!better) continue;
 
     found = true; best_wx = is_wx; best_ctime = ctime;
+    a.login_type = account_type;
     int64_t vuid_n = o.value("videoUserId", static_cast<int64_t>(0));
     if (vuid_n) a.vuid = std::to_string(vuid_n);
     a.vusession = o.value("videoSessionKey", std::string());
@@ -295,6 +301,13 @@ model::SessionMaterial Account::to_session() const {
   auto set = [&](const char* k, const std::string& v) { if (!v.empty()) s.kv[k] = v; };
   // identity / credential / session.
   set("vuid", vuid);
+  if (login_type >= 0) {
+    s.kv["login_type"] = std::to_string(login_type);
+  } else if (wx_app_id.empty() && wx_open_id.empty() && wx_access_token.empty() &&
+             wx_refresh_token.empty()) {
+    // Legacy phone dumps did not persist accountType; phone refresh has no wx_*.
+    s.kv["login_type"] = "2";
+  }
   set("vusession", vusession);
   set("vurefresh", vurefresh);
   set("wx_app_id", wx_app_id);
@@ -329,10 +342,15 @@ std::string missing_required(const Account& a) {
   add(a.vuid.empty(), "vuid");
   add(a.vusession.empty(), "vusession");
   add(a.vurefresh.empty(), "vurefresh");
-  add(a.wx_app_id.empty(), "wx_app_id");
-  add(a.wx_open_id.empty(), "wx_open_id");
-  add(a.wx_access_token.empty(), "wx_access_token");
-  add(a.wx_refresh_token.empty(), "wx_refresh_token");
+  const bool has_wechat =
+      !a.wx_app_id.empty() || !a.wx_open_id.empty() ||
+      !a.wx_access_token.empty() || !a.wx_refresh_token.empty();
+  if (has_wechat) {
+    add(a.wx_app_id.empty(), "wx_app_id");
+    add(a.wx_open_id.empty(), "wx_open_id");
+    add(a.wx_access_token.empty(), "wx_access_token");
+    add(a.wx_refresh_token.empty(), "wx_refresh_token");
+  }
   add(a.qimei36.empty(), "qimei36");
   add(a.guid.empty(), "guid");
   add(a.usid.empty(), "usid");

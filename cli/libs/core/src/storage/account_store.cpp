@@ -115,6 +115,8 @@ static void load_auth_json(const json& j, Account& a) {
   json se = section(j, "session");
   a.wx_app_id = jstr(id, "wx_app_id");
   a.wx_open_id = jstr(id, "wx_open_id");
+  a.login_type = static_cast<int>(jint(id, "login_type"));
+  if (a.login_type == 0 && !id.contains("login_type")) a.login_type = -1;
   a.nickname = jstr(id, "nickname");
   a.head_url = jstr(id, "head_url");
   if (a.vuid.empty()) a.vuid = jstr(id, "vuid");
@@ -406,6 +408,7 @@ void save_account(const std::string& path, const Account& a) {
                     {"device_id", a.source_device_id},
                     {"pkg", a.source_pkg}};
   auth["identity"] = {{"vuid", a.vuid},
+                      {"login_type", a.login_type},
                       {"wx_app_id", a.wx_app_id},
                       {"wx_open_id", a.wx_open_id},
                       {"nickname", a.nickname},

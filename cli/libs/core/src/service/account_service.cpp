@@ -177,6 +177,10 @@ Result<RefreshOutcome> AccountService::refresh(const std::string& account_id,
   if (!loaded) return loaded.error();
   account::Account account = loaded.value();
   const std::string path = path_for(account_id);
+  const bool has_wechat_identity =
+      !account.wx_app_id.empty() || !account.wx_open_id.empty() ||
+      !account.wx_access_token.empty() || !account.wx_refresh_token.empty();
+  const bool phone_refresh = account.login_type == 2 || !has_wechat_identity;
 
   if (dry_run) {
     // Chỉ dựng khung request để đối chiếu byte-exact; không chạm mạng.
@@ -219,11 +223,18 @@ Result<RefreshOutcome> AccountService::refresh(const std::string& account_id,
 
   const auth::RefreshResult& result = sent.value();
   if (result.has_trpc_ret && result.trpc_ret != 0) {
+    const std::string detail =
+        phone_refresh
+            ? "phone old-video refresh đã gửi third_info=null; nếu vẫn bị từ chối "
+              "thì account này cần nhánh AuthCenter RefreshToken hoặc dump metadata mới"
+        : has_wechat_identity
+            ? "vurefresh hoặc token WeChat đã hết hạn — hãy đăng nhập lại WeChat "
+              "trên thiết bị rồi dump lại"
+            : "máy chủ từ chối request refresh";
     return make_error(ErrorCode::kAuthExpired,
                       "máy chủ từ chối làm mới phiên (trpc_ret=" +
                           std::to_string(result.trpc_ret) + ")",
-                      "vurefresh hoặc token WeChat đã hết hạn — hãy đăng nhập lại "
-                      "WeChat trên thiết bị rồi dump lại");
+                      detail);
   }
   if (result.vusession.empty()) {
     return make_error(ErrorCode::kProtocol, "phản hồi không chứa vusession mới");
@@ -237,7 +248,7 @@ Result<RefreshOutcome> AccountService::refresh(const std::string& account_id,
     log_warn(std::string("không sao lưu được account trước khi làm mới: ") + e.what());
   }
   account.vusession = result.vusession;
-  account.vurefresh = result.vurefresh;
+  if (!result.vurefresh.empty()) account.vurefresh = result.vurefresh;
   if (!result.third_access_token.empty()) account.wx_access_token = result.third_access_token;
   if (!result.third_refresh_token.empty()) {
     account.wx_refresh_token = result.third_refresh_token;

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "vectors/generated_vectors_sign.h"
+#include "tencent/core/codec/protobuf.h"
 #include "tencent/core/protocol/auth/login_refresh.h"
 #include "tencent/core/protocol/auth/login_sign.h"
 #include "tencent/core/protocol/trpc/head.h"
@@ -57,6 +58,10 @@ static void check_i64(int64_t got, int64_t want, const std::string& name) {
   if (!ok) { ++g_failures; std::printf("    want: %lld\n    got : %lld\n",
                                        (long long)want, (long long)got); }
 }
+static void check_bool(bool ok, const std::string& name) {
+  std::printf("  [%s] %s\n", ok ? "PASS" : "FAIL", name.c_str());
+  if (!ok) ++g_failures;
+}
 
 int main() {
   std::printf("== login-refresh vusession ==\n");
@@ -83,6 +88,14 @@ int main() {
       vsign::WX_OPEN_ID, vsign::WX_ACCESS_TOKEN, vsign::WX_REFRESH_TOKEN,
       vsign::QIMEI36, vsign::ORIGINAL_DATA, vsign::SIGN);
   check_hex(body, vsign::REFRESH_BODY_HEX, "build_refresh_request body");
+
+  std::string phone_body = lr::build_refresh_request(
+      vsign::VUID, vsign::VUSESSION, vsign::VUREFRESH, "", "", "", "",
+      vsign::QIMEI36, vsign::ORIGINAL_DATA, vsign::SIGN,
+      lr::kThirdTypeWX, "", /*include_third_info=*/false);
+  auto phone_fields = tencent::pb::parse(phone_body);
+  check_bool(tencent::pb::get_first(phone_fields, 4) == nullptr,
+             "phone RefreshRequest omits third_info");
 
   // (3) Refresh frame từ session có đầy đủ device/app context.
   tencent::model::SessionMaterial base;

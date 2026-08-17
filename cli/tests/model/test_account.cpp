@@ -128,6 +128,7 @@ int main() {
 
   acc::Account ja;
   check(acc::parse_account_json(ablob, ja), "parse_account_json tìm thấy");
+  check(ja.login_type == 1, "account JSON lưu login_type WX");
   eq(ja.vuid, "3578420805", "account JSON vuid");
   eq(ja.vusession, "NEWSESSION165", "account JSON chọn videoCreateTime mới nhất");
   eq(ja.vurefresh, "NEWREFRESH118", "account JSON vurefresh");
@@ -204,6 +205,33 @@ int main() {
   eq(sess.get("screen_width"), "1752", "to_session screen_width");
   eq(sess.get("vusession"), "FAKE_VUSESSION_001", "to_session vusession");
 
+  acc::Account non_wx = a;
+  non_wx.login_type = -1;
+  non_wx.wx_app_id.clear();
+  non_wx.wx_open_id.clear();
+  non_wx.wx_access_token.clear();
+  non_wx.wx_refresh_token.clear();
+  check(acc::missing_required(non_wx).find("wx_") == std::string::npos,
+        "account không WeChat không bắt buộc wx_*");
+  eq(non_wx.to_session().get("login_type"), "2", "legacy non-WX infers phone login_type");
+
+  std::string phone_json =
+      "{\"accountType\":2,\"videoUserId\":2468,\"videoSessionKey\":\"PHONEVS\","
+      "\"videoRefreshKey\":\"PHONEVR\",\"nickName\":\"phone user\","
+      "\"videoCreateTime\":2000,\"videoExpireTime\":6000}";
+  acc::Account phone;
+  check(acc::parse_account_json(phone_json, phone), "parse_account_json phone tìm thấy");
+  check(phone.login_type == 2, "account JSON lưu login_type PHONE");
+  eq(phone.to_session().get("login_type"), "2", "to_session login_type phone");
+
+  acc::Account partial_wx = non_wx;
+  partial_wx.wx_open_id = "oFAKEopenid";
+  std::string partial_missing = acc::missing_required(partial_wx);
+  check(partial_missing.find("wx_app_id") != std::string::npos &&
+            partial_missing.find("wx_access_token") != std::string::npos &&
+            partial_missing.find("wx_refresh_token") != std::string::npos,
+        "account WeChat thiếu token vẫn bị báo lỗi");
+
   // Roundtrip bundle save→load (ghi thư mục tạm).
   namespace fs = std::filesystem;
   fs::path tmp = fs::temp_directory_path() / "tencent_acct_test_bundle";
@@ -222,6 +250,7 @@ int main() {
         "fingerprint.json giữ raw helper snapshot");
   acc::Account b = tencent::storage::load_account(tmp.string());
   eq(b.vuid, a.vuid, "roundtrip vuid");
+  check(b.login_type == a.login_type, "roundtrip login_type");
   eq(b.vurefresh, a.vurefresh, "roundtrip vurefresh");
   eq(b.model, a.model, "roundtrip device.model");
   eq(b.app_ver, a.app_ver, "roundtrip device.app_ver");
