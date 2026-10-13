@@ -142,10 +142,26 @@ int run_info(const AuthOptions& options) {
   return 0;
 }
 
+int run_delete(const AuthOptions& options) {
+  const service::AccountService service(service_options(options));
+  auto result = service.remove(options.account_id);
+  if (!result) return report(result.error());
+
+  const service::DeleteOutcome& outcome = result.value();
+  print("Đã xoá account " + outcome.account_id);
+  if (outcome.removed_bundle) print("  bundle : " + outcome.account_path);
+  if (outcome.removed_legacy) print("  legacy : " + outcome.legacy_path);
+  print("  mục đã xoá: " + std::to_string(outcome.removed_entries));
+  if (outcome.cleared_default) print("  đã bỏ account mặc định");
+  return 0;
+}
+
 }  // namespace
 
 int run_auth(const AuthOptions& options) {
   switch (options.mode) {
+    case AuthOptions::Mode::kDelete:
+      return run_delete(options);
     case AuthOptions::Mode::kRefresh:
       return run_refresh(options);
     case AuthOptions::Mode::kInfo:

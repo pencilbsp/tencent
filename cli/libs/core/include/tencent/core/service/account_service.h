@@ -12,6 +12,7 @@
 //     ghi lại xuống đĩa (kèm sao lưu bản cũ).
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -75,6 +76,16 @@ struct AccountInfo {
   std::vector<std::string> warnings;
 };
 
+struct DeleteOutcome {
+  std::string account_id;
+  std::string account_path;
+  std::string legacy_path;
+  uint64_t removed_entries = 0;
+  bool removed_bundle = false;
+  bool removed_legacy = false;
+  bool cleared_default = false;
+};
+
 // Tuỳ chọn chung của dịch vụ. Đặt ở phạm vi namespace (không lồng trong lớp)
 // để dùng được làm giá trị mặc định của hàm dựng.
 struct AccountServiceOptions {
@@ -129,6 +140,9 @@ class AccountService {
   // số dư kim cương từ máy chủ.
   Result<AccountInfo> info(const std::string& account_id, bool local_only,
                            bool allow_refresh) const;
+
+  // Xoá profile account đã lưu. Xoá cả bundle v2 lẫn file legacy v1 nếu có.
+  Result<DeleteOutcome> remove(const std::string& account_id) const;
 
  private:
   AccountServiceOptions options_;

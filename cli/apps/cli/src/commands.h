@@ -19,7 +19,7 @@ namespace tencent::cli {
 // ── auth ─────────────────────────────────────────────────────────────────────
 struct AuthOptions {
   // Chế độ (đúng một trong ba, xác định bởi cờ nào xuất hiện trên dòng lệnh).
-  enum class Mode { kDump, kRefresh, kInfo };
+  enum class Mode { kDump, kRefresh, kInfo, kDelete };
   Mode mode = Mode::kDump;
 
   std::string device_id;        // --adb [<device_id>]

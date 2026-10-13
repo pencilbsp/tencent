@@ -7,6 +7,8 @@
 // cấu trúc dữ liệu.
 #include "tencent/core/service/account_service.h"
 
+#include <algorithm>
+#include <cctype>
 #include <filesystem>
 
 #include "tencent/core/common/clock.h"
@@ -127,6 +129,58 @@ Result<account::Account> AccountService::load(const std::string& account_id) con
   }
   return guard<account::Account>(ErrorCode::kIo, "không nạp được account " + account_id,
                                  [&] { return storage::load_account(path); });
+}
+
+Result<DeleteOutcome> AccountService::remove(const std::string& account_id) const {
+  if (account_id.empty()) {
+    return make_error(ErrorCode::kInvalidArgument, "cần truyền <vuid> để xoá account");
+  }
+  const bool safe_id = std::all_of(account_id.begin(), account_id.end(), [](unsigned char ch) {
+    return std::isalnum(ch) || ch == '_' || ch == '-';
+  });
+  if (!safe_id || account_id == "." || account_id == "..") {
+    return make_error(ErrorCode::kInvalidArgument,
+                      "vuid không hợp lệ",
+                      "chỉ nhận chữ/số, gạch dưới hoặc gạch nối");
+  }
+
+  const fs::path bundle = storage::account_path(account_id);
+  const fs::path legacy = storage::legacy_account_path(account_id);
+  const bool has_bundle = storage::account_exists(bundle.string());
+  std::error_code exists_ec;
+  const bool has_legacy = fs::is_regular_file(legacy, exists_ec);
+  if (!has_bundle && !has_legacy) {
+    return make_error(ErrorCode::kNotFound, "không tìm thấy account " + account_id);
+  }
+
+  return guard<DeleteOutcome>(ErrorCode::kIo, "không xoá được account", [&] {
+    DeleteOutcome outcome;
+    outcome.account_id = account_id;
+    outcome.account_path = bundle.string();
+    outcome.legacy_path = legacy.string();
+
+    std::error_code ec;
+    if (has_bundle) {
+      outcome.removed_entries += static_cast<uint64_t>(fs::remove_all(bundle, ec));
+      if (ec) throw std::runtime_error(bundle.string() + ": " + ec.message());
+      outcome.removed_bundle = true;
+    }
+    if (has_legacy) {
+      ec.clear();
+      const bool removed = fs::remove(legacy, ec);
+      if (ec) throw std::runtime_error(legacy.string() + ": " + ec.message());
+      if (removed) {
+        outcome.removed_entries += 1;
+        outcome.removed_legacy = true;
+      }
+    }
+
+    if (storage::default_account() == account_id) {
+      storage::set_default_account("");
+      outcome.cleared_default = true;
+    }
+    return outcome;
+  });
 }
 
 // ── Khôi phục identity ───────────────────────────────────────────────────────

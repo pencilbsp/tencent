@@ -21,18 +21,19 @@ int main(int argc, char** argv) {
   app.add_flag("-v,--verbose", verbose, "In thêm thông tin gỡ lỗi");
 
   // ── auth ───────────────────────────────────────────────────────────────────
-  // Ba chế độ loại trừ nhau, phân biệt bằng cờ nào XUẤT HIỆN trên dòng lệnh.
-  // Cả ba đều nhận giá trị TÙY CHỌN: `--adb` không kèm gì thì tự chọn thiết bị,
-  // `--refresh`/`--info` không kèm gì thì dùng account mặc định.
+  // Bốn chế độ loại trừ nhau, phân biệt bằng cờ nào XUẤT HIỆN trên dòng lệnh.
+  // `--adb` không kèm gì thì tự chọn thiết bị; `--refresh`/`--info` không kèm gì
+  // thì dùng account mặc định; `--delete` bắt buộc nhận vuid.
   cli::AuthOptions auth_options;
   auto* auth = app.add_subcommand(
-      "auth", "Lấy credential từ thiết bị (--adb), làm mới phiên (--refresh) "
-              "hoặc xem thông tin (--info)");
+      "auth", "Lấy credential từ thiết bị (--adb), làm mới phiên (--refresh), "
+              "xem thông tin (--info), hoặc xoá profile (--delete)");
   auto* adb_flag =
       auth->add_option("--adb", auth_options.device_id,
                        "Lấy dữ liệu qua adb; có thể kèm <device_id>")
           ->expected(0, 1);
   std::string refresh_account, info_account;
+  std::string delete_account;
   auto* refresh_flag =
       auth->add_option("--refresh", refresh_account,
                        "Làm mới vusession cho <account_id> (mặc định: account mặc định)")
@@ -41,6 +42,13 @@ int main(int argc, char** argv) {
       auth->add_option("--info", info_account,
                        "Xem thông tin + VIP của <account_id> (mặc định: account mặc định)")
           ->expected(0, 1);
+  auto* delete_flag =
+      auth->add_option("--delete", delete_account,
+                       "Xoá profile account đã lưu theo <vuid>")
+          ->expected(1);
+  refresh_flag->excludes(info_flag)->excludes(delete_flag);
+  info_flag->excludes(delete_flag);
+  adb_flag->excludes(refresh_flag)->excludes(info_flag)->excludes(delete_flag);
   bool auth_no_refresh = false;
   auth->add_flag("--dry-run", auth_options.dry_run,
                  "refresh: chỉ dựng khung request, không gửi");
@@ -261,6 +269,9 @@ int main(int argc, char** argv) {
       auth_options.mode = cli::AuthOptions::Mode::kInfo;
       auth_options.account_id = info_account;
       auth_options.allow_refresh = !auth_no_refresh;
+    } else if (delete_flag->count() > 0) {
+      auth_options.mode = cli::AuthOptions::Mode::kDelete;
+      auth_options.account_id = delete_account;
     } else {
       auth_options.mode = cli::AuthOptions::Mode::kDump;
       auth_options.use_device = adb_flag->count() > 0;

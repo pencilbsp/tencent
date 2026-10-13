@@ -9,6 +9,7 @@
 
 #include "tencent/core/common/hex.h"
 #include "tencent/core/model/account.h"
+#include "tencent/core/service/account_service.h"
 #include "tencent/core/storage/account_store.h"
 #include "tencent/core/storage/paths.h"
 
@@ -291,6 +292,34 @@ int main() {
   eq(legacy.model, "LEGACY_MODEL", "legacy fallback device");
   check(tencent::storage::account_exists(legacy_base.string()), "exists nhận legacy <path>.json");
   fs::remove(legacy_file);
+
+  // Service delete: xoá cả bundle + legacy, và clear default nếu trỏ vào account đó.
+  fs::path home = fs::temp_directory_path() / "tencent_acct_delete_home";
+  fs::remove_all(home);
+  tencent::storage::set_app_home(home.string());
+  a.vuid = "delete_me";
+  tencent::storage::save_account(tencent::storage::account_path(a.vuid), a);
+  {
+    std::ofstream out(tencent::storage::legacy_account_path(a.vuid),
+                      std::ios::binary | std::ios::trunc);
+    out << "{\"schema_version\":1,\"vuid\":\"delete_me\"}";
+  }
+  tencent::storage::set_default_account(a.vuid);
+  tencent::service::AccountService accounts;
+  auto deleted = accounts.remove(a.vuid);
+  check(static_cast<bool>(deleted), "service remove thành công");
+  if (deleted) {
+    check(deleted.value().removed_bundle, "service remove xoá bundle");
+    check(deleted.value().removed_legacy, "service remove xoá legacy");
+    check(deleted.value().cleared_default, "service remove clear default");
+  }
+  check(!tencent::storage::account_exists(tencent::storage::account_path(a.vuid)),
+        "service remove không còn bundle");
+  check(!fs::exists(tencent::storage::legacy_account_path(a.vuid)),
+        "service remove không còn legacy");
+  eq(tencent::storage::default_account(), "", "service remove default rỗng");
+  fs::remove_all(home);
+  tencent::storage::set_app_home("");
 
   std::printf("\n%s (%d failure(s))\n", g_fail == 0 ? "ALL PASS" : "FAILED", g_fail);
   return g_fail == 0 ? 0 : 1;
