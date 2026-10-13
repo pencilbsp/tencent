@@ -94,6 +94,20 @@ struct FlushOptions {
 };
 int run_flush(const FlushOptions& options);
 
+// ── search ───────────────────────────────────────────────────────────────────
+struct SearchOptions {
+  std::string query;
+  int page = 0;
+  int page_size = 0;            // 0 = mặc định của service (15; gợi ý: 10)
+  std::string pre_qid;          // qid của trang trước (lật trang)
+  std::string filter_value;     // giá trị tab lọc
+  bool suggest = false;         // chỉ in gợi ý khi gõ
+  bool show_episodes = false;   // in dải tập của từng kết quả
+  std::string proxy_url;
+  long timeout_sec = 20;
+};
+int run_search(const SearchOptions& options);
+
 // ── Tiện ích dùng chung cho các lệnh ────────────────────────────────────────
 
 // Tách cid/vid từ URL trang xem dạng https://v.qq.com/x/cover/<cid>/<vid>.html

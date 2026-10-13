@@ -13,6 +13,7 @@ add_executable(tencent-cli
   src/commands/download_command.cpp
   src/commands/probe_command.cpp
   src/commands/flush_command.cpp
+  src/commands/search_command.cpp
 )
 
 target_link_libraries(tencent-cli

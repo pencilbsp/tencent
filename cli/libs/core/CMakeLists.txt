@@ -55,6 +55,7 @@ add_library(tencent_core STATIC
   src/protocol/playback/ckey_fields.cpp
   src/protocol/playback/adpass.cpp
   src/protocol/playback/request_builder.cpp
+  src/protocol/search/search_api.cpp
 
   # ── storage: bố cục file trạng thái trên đĩa ───────────────────────────────
   src/storage/paths.cpp
@@ -74,6 +75,7 @@ add_library(tencent_core STATIC
   src/service/playback_service.cpp
   src/service/download_service.cpp
   src/service/diagnostics_service.cpp
+  src/service/search_service.cpp
 )
 add_library(tencent::core ALIAS tencent_core)
 

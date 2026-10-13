@@ -1,0 +1,204 @@
+{
+ "data": {
+  "err_msg": {
+   "code": 0,
+   "msg": "ERROR_CODE_OK",
+   "msg_4_user": "",
+   "msg_4_dev": ""
+  },
+  "result_list": {
+   "box_id": "",
+   "total_num": 0,
+   "item_list": [
+    {
+     "doc": {
+      "data_type": 0,
+      "md": "6214236794554348705",
+      "id": "",
+      "area_box_index": []
+     },
+     "entity": null,
+     "view": {
+      "img_url": "",
+      "play_btn": "",
+      "lines": [
+       {
+        "text": "<font color=\"#FF7800\">无上神帝</font>合集",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       },
+       {
+        "text": "",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       },
+       {
+        "text": "",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       }
+      ],
+      "img_ui_type": 10,
+      "action": ""
+     },
+     "report": {
+      "report_data": "doc_id=6214236794554348705&doc_type=7&experiment_id=%2320125&mark_txt=%E6%97%A0%E4%B8%8A%E7%A5%9E%E5%B8%9D&query_txt=%E6%97%A0%E4%B8%8A%E7%A5%9E%E5%B8%9D%E5%90%88%E9%9B%86&sug_req_id=spMBfjAIzrhLZyIK&label_type=&status="
+     },
+     "playsource": {
+      "site_cn_name": "",
+      "site_en_name": "",
+      "site_id": 0
+     },
+     "ext_info": {}
+    },
+    {
+     "doc": {
+      "data_type": 0,
+      "md": "8018211923546754066",
+      "id": "",
+      "area_box_index": []
+     },
+     "entity": null,
+     "view": {
+      "img_url": "",
+      "play_btn": "",
+      "lines": [
+       {
+        "text": "<font color=\"#FF7800\">无上神帝</font>牧云",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       },
+       {
+        "text": "",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       },
+       {
+        "text": "",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       }
+      ],
+      "img_ui_type": 10,
+      "action": ""
+     },
+     "report": {
+      "report_data": "doc_id=8018211923546754066&doc_type=7&experiment_id=%2320125&mark_txt=%E6%97%A0%E4%B8%8A%E7%A5%9E%E5%B8%9D&query_txt=%E6%97%A0%E4%B8%8A%E7%A5%9E%E5%B8%9D%E7%89%A7%E4%BA%91&sug_req_id=spMBfjAIzrhLZyIK&label_type=&status="
+     },
+     "playsource": {
+      "site_cn_name": "",
+      "site_en_name": "",
+      "site_id": 0
+     },
+     "ext_info": {}
+    },
+    {
+     "doc": {
+      "data_type": 0,
+      "md": "16832036672465998599",
+      "id": "",
+      "area_box_index": []
+     },
+     "entity": null,
+     "view": {
+      "img_url": "",
+      "play_btn": "",
+      "lines": [
+       {
+        "text": "牧云<font color=\"#FF7800\">无上神帝</font>",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       },
+       {
+        "text": "",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       },
+       {
+        "text": "",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       }
+      ],
+      "img_ui_type": 10,
+      "action": ""
+     },
+     "report": {
+      "report_data": "doc_id=16832036672465998599&doc_type=7&experiment_id=%2320125&mark_txt=%E6%97%A0%E4%B8%8A%E7%A5%9E%E5%B8%9D&query_txt=%E7%89%A7%E4%BA%91%E6%97%A0%E4%B8%8A%E7%A5%9E%E5%B8%9D&sug_req_id=spMBfjAIzrhLZyIK&label_type=&status="
+     },
+     "playsource": {
+      "site_cn_name": "",
+      "site_en_name": "",
+      "site_id": 0
+     },
+     "ext_info": {}
+    },
+    {
+     "doc": {
+      "data_type": 0,
+      "md": "12041370366733142937",
+      "id": "",
+      "area_box_index": []
+     },
+     "entity": null,
+     "view": {
+      "img_url": "",
+      "play_btn": "",
+      "lines": [
+       {
+        "text": "<font color=\"#FF7800\">无上神帝</font>第一季",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       },
+       {
+        "text": "",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       },
+       {
+        "text": "",
+        "text_color": 0,
+        "dark_color": 0,
+        "text_color_str": "",
+        "dark_color_str": ""
+       }
+      ],
+      "img_ui_type": 10,
+      "action": ""
+     },
+     "report": {
+      "report_data": "doc_id=12041370366733142937&doc_type=7&experiment_id=%2320125&mark_txt=%E6%97%A0%E4%B8%8A%E7%A5%9E%E5%B8%9D&query_txt=%E6%97%A0%E4%B8%8A%E7%A5%9E%E5%B8%9D%E7%AC%AC%E4%B8%80%E5%AD%A3&sug_req_id=spMBfjAIzrhLZyIK&label_type=&status="
+     },
+     "playsource": {
+      "site_cn_name": "",
+      "site_en_name": "",
+      "site_id": 0
+     },
+     "ext_info": {}
+    }
+   ]
+  }
+ }
+}

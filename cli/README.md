@@ -190,6 +190,24 @@ Các cipher Shadowsocks được hỗ trợ trực tiếp: `aes-128-gcm`, `aes-2
 chối với thông báo cụ thể. `http://`, `https://`, `socks4[a]://` và
 `socks5[h]://` được chuyển thẳng cho libcurl.
 
+### Tìm kiếm (ẩn danh)
+
+`search` gọi đúng API mà trang tìm kiếm của app dùng khi chưa đăng nhập
+(`pbaccess.video.qq.com`, HTTP + JSON) nên **không cần account**. `cid=` là mã
+cover (series), `vid=` là mã video lẻ — dùng cho `getvinfo --cid/--vid`.
+
+```bash
+./build/apps/cli/tencent-cli search 庆余年                       # trang đầu
+./build/apps/cli/tencent-cli search 庆余年 --episodes            # kèm dải tập
+./build/apps/cli/tencent-cli search 庆余年 --page 1 --pre-qid <qid>   # trang kế (qid in ở cuối)
+./build/apps/cli/tencent-cli search 庆余 --suggest               # gợi ý khi gõ
+```
+
+Mã nằm ở `libs/core/.../protocol/search/` (dựng body + parse) và
+`service/search_service.h` (mặt tiền, `Result<T>`); test byte-exact:
+`tests/protocol/test_search_api.cpp`, ground-truth sinh bằng
+`tests/vectors/gen_vectors_search.py` từ `../analytics/app/search_web_client.py`.
+
 ## Ranh giới Port vs Dump
 
 Xem [AGENTS.md §3](AGENTS.md). Tóm tắt: thuật toán (cKey, crypto, body builder,

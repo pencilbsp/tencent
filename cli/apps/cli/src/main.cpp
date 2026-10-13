@@ -230,6 +230,24 @@ int main(int argc, char** argv) {
   flush->add_option("--defn", flush_options.defn, "Chỉ xoá một chất lượng; cần kèm --vid");
   flush->add_flag("--dry-run", flush_options.dry_run, "Chỉ in đường dẫn sẽ bị xoá");
 
+  // ── search ─────────────────────────────────────────────────────────────────
+  cli::SearchOptions search_options;
+  auto* search = app.add_subcommand("search", "Tìm kiếm video (ẩn danh, không cần account)");
+  search->add_option("query", search_options.query, "Từ khoá tìm kiếm")->required();
+  search->add_option("--page", search_options.page, "Trang (bắt đầu từ 0)")
+      ->capture_default_str();
+  search->add_option("--page-size", search_options.page_size,
+                     "Số mục mỗi trang (mặc định 15; gợi ý 10)");
+  search->add_option("--pre-qid", search_options.pre_qid,
+                     "qid của trang trước, cần khi lật trang (in ở cuối kết quả)");
+  search->add_option("--filter", search_options.filter_value, "Giá trị tab lọc");
+  search->add_flag("--suggest", search_options.suggest, "Chỉ in gợi ý khi gõ");
+  search->add_flag("--episodes", search_options.show_episodes, "In dải tập của từng kết quả");
+  search->add_option("--proxy", search_options.proxy_url,
+                     "Proxy: ss:// hoặc http(s)/socks4/socks5");
+  search->add_option("--timeout", search_options.timeout_sec, "Thời gian chờ HTTP (giây)")
+      ->capture_default_str();
+
   CLI11_PARSE(app, argc, argv);
   cli::install_console_log_sink(verbose);
 
@@ -272,6 +290,7 @@ int main(int argc, char** argv) {
     return cli::run_download(dl);
   }
 
+  if (search->parsed()) return cli::run_search(search_options);
   if (probe->parsed()) return cli::run_probe(probe_options);
   if (flush->parsed()) return cli::run_flush(flush_options);
   return 0;
