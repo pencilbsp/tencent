@@ -1214,6 +1214,46 @@ void append_query_param(std::string& url, const std::string& key, const std::str
   url.append(value);
 }
 
+// Tencent HLS ad inserts are marked with segmenttype=2 in the playlist URL.
+// The captured q0043cz9x20 FHD playlist places one before the actual HEVC
+// program, separated by EXT-X-DISCONTINUITY. It must not be remuxed with the
+// program stream because the codec and timestamps differ.
+std::string strip_ad_segments(const std::string& playlist, size_t* removed_count = nullptr) {
+  std::istringstream input(playlist);
+  std::ostringstream output;
+  std::ostringstream pending_segment;
+  size_t removed = 0;
+  std::string line;
+  while (std::getline(input, line)) {
+    std::string stripped = trim(line);
+    if (stripped.rfind("#EXTINF:", 0) == 0) {
+      output << pending_segment.str();
+      pending_segment.str("");
+      pending_segment.clear();
+      pending_segment << line << "\n";
+      continue;
+    }
+    if (!stripped.empty() && stripped[0] != '#') {
+      if (query_has_key(stripped, "segmenttype") &&
+          stripped.find("segmenttype=2") != std::string::npos) {
+        ++removed;
+      } else {
+        output << pending_segment.str() << line << "\n";
+      }
+      pending_segment.str("");
+      pending_segment.clear();
+      continue;
+    }
+    if (pending_segment.tellp() > 0)
+      pending_segment << line << "\n";
+    else
+      output << line << "\n";
+  }
+  output << pending_segment.str();
+  if (removed_count) *removed_count = removed;
+  return output.str();
+}
+
 std::string abbreviate_url_for_error(const std::string& url) {
   constexpr size_t kMax = 320;
   if (url.size() <= kMax) return url;
@@ -2046,6 +2086,10 @@ void download_hls_segments(const nlohmann::json& video, const fs::path& out_dir,
     if (key == "cookie") continue;
     segment_headers.push_back(header);
   }
+  size_t ad_segments = 0;
+  m3u8 = strip_ad_segments(m3u8, &ad_segments);
+  if (ad_segments > 0)
+    log_out() << "playlist_ad_segments_skipped=" << ad_segments << "\n";
   auto segments = build_segments(m3u8, base_url, video_feature, cdn_strategy,
                                  emergency_time_ms,
                                  add_segment_query && !lazy_emergency_query);
@@ -3815,6 +3859,10 @@ bool response_has_anc_for_test(const std::string& response_text) {
 
 bool playlist_has_encryption_key_for_test(const std::string& playlist_text) {
   return playlist_has_encryption_key_text(playlist_text);
+}
+
+std::string strip_ad_segments_for_test(const std::string& playlist_text) {
+  return strip_ad_segments(playlist_text);
 }
 
 size_t subtitle_track_count_for_test(const nlohmann::json& decoded) {

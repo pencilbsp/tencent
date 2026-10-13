@@ -82,6 +82,7 @@ std::string detect_annexb_video_codec_for_test(const std::string& payload);
 std::string detect_pmt_video_codec_for_test(const std::string& section);
 bool response_has_anc_for_test(const std::string& response_text);
 bool playlist_has_encryption_key_for_test(const std::string& playlist_text);
+std::string strip_ad_segments_for_test(const std::string& playlist_text);
 size_t subtitle_track_count_for_test(const nlohmann::json& decoded);
 std::string merge_webvtt_segments_for_test(const std::vector<std::string>& segments);
 std::string convert_subtitle_for_test(const std::string& webvtt,

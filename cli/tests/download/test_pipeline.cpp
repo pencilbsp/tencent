@@ -138,6 +138,19 @@ int main() {
   check(download::playlist_has_encryption_key_for_test(encrypted_playlist),
         "non-NONE EXT-X-KEY playlist requires decrypt material");
 
+  std::string playlist_with_preroll =
+      "#EXTM3U\n"
+      "#EXT-X-DISCONTINUITY\n"
+      "#EXTINF:15.040,\n"
+      "https://ad.example/00.ts?segmenttype=2&token=ad\n"
+      "#EXT-X-DISCONTINUITY\n"
+      "#EXTINF:12.000,\n"
+      "https://video.example/01.ts?index=0&token=video\n";
+  std::string program_playlist = download::strip_ad_segments_for_test(playlist_with_preroll);
+  check(program_playlist.find("segmenttype=2") == std::string::npos &&
+            program_playlist.find("01.ts?index=0") != std::string::npos,
+        "HLS pre-roll ad segment is excluded before remux");
+
   std::printf("\n== download_pipeline subtitles ==\n");
 
   nlohmann::json subtitle_response = nlohmann::json::parse(R"({
