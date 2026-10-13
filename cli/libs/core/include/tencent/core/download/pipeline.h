@@ -26,6 +26,10 @@ struct Options {
   int workers = 8;
   bool workers_explicit = false;
   bool no_download = false;
+  // Do not keep downloaded media or subtitle segments in the video cache after
+  // producing the requested output. They are still staged temporarily so the
+  // remux/decrypt pipeline can consume them.
+  bool no_cache = false;
   long timeout = 30;
   int retries = 3;
   int getplay_sleep_sec = 1;

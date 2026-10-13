@@ -143,6 +143,11 @@ Mỗi video/chất lượng có namespace riêng để không ghi đè lẫn nha
 └── decoded.json
 ```
 
+Thêm `--no-cache` vào `getvinfo -o` hoặc `download` để không giữ lại segment
+video/DRM và phụ đề đã tải sau khi xuất file. Segment vẫn được tạo tạm trong
+lúc giải mã/remux, rồi tự dọn cả khi lệnh kết thúc bằng lỗi; capture và metadata
+nhẹ vẫn được giữ để hỗ trợ chẩn đoán/replay.
+
 Xoá cache video bằng `flush`; lệnh này chỉ xoá `videos/`, không đụng
 `accounts/`:
 

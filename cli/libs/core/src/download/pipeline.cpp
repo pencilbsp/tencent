@@ -152,6 +152,31 @@ uint64_t file_size_or_zero(const fs::path& path) {
   return ec ? 0 : static_cast<uint64_t>(sz);
 }
 
+// Segment files must exist while the HLS/DRM pipeline remuxes them, but
+// --no-cache promises not to retain or reuse media in the persistent video
+// cache. Keep request/response captures and diagnostic metadata intact.
+class ScopedSegmentCacheCleanup {
+ public:
+  ScopedSegmentCacheCleanup(const fs::path& temporary_dir, bool enabled)
+      : temporary_dir_(temporary_dir), enabled_(enabled) {
+    if (!enabled_) return;
+    // A previous interrupted no-cache run may have left this private staging
+    // directory behind; never treat it as reusable segment cache.
+    std::error_code ec;
+    fs::remove_all(temporary_dir_, ec);
+  }
+
+  ~ScopedSegmentCacheCleanup() {
+    if (!enabled_) return;
+    std::error_code ec;
+    fs::remove_all(temporary_dir_, ec);
+  }
+
+ private:
+  fs::path temporary_dir_;
+  bool enabled_ = false;
+};
+
 fs::path abs_path(const std::string& path) {
   std::error_code ec;
   fs::path p = fs::absolute(fs::path(path), ec);
@@ -3906,6 +3931,8 @@ int run_download(const Options& input) {
     }
 
     fs::create_directories(work);
+    const fs::path media_work = opt.no_cache ? work / ".no-cache" : work;
+    ScopedSegmentCacheCleanup segment_cache_cleanup(media_work, opt.no_cache);
 
     log_out() << "# native download\n"
               << "request=" << request << "\n"
@@ -3913,6 +3940,8 @@ int run_download(const Options& input) {
               << "response_payload=" << (used_anc ? "anc" : "plaintext") << "\n"
               << "output=" << output << "\n"
               << "work_dir=" << work << "\n";
+    if (opt.no_cache)
+      log_out() << "segment_cache=disabled (temporary files will be removed)\n";
 
     write_text(work / "decoded.json", decoded.dump(2) + "\n");
     std::optional<DrmMaterial> drm = maybe_extract_drm_material(decoded);
@@ -3921,8 +3950,8 @@ int run_download(const Options& input) {
     else
       log_out() << "DRM material=none (plaintext media expected)\n";
 
-    fs::path hls_dir = work / "hls";
-    fs::path drm_dir = work / "drm";
+    fs::path hls_dir = media_work / "hls";
+    fs::path drm_dir = media_work / "drm";
     download_proxy::Context config_context = opt.proxy_config_context;
     if (config_context.version.empty()) config_context.version = opt.download_user_agent;
     if (config_context.platform.empty())
@@ -3966,12 +3995,12 @@ int run_download(const Options& input) {
                             opt.workers, opt.trace);
     } else {
       log_out() << "\n# plaintext remux\n";
-      remux_plain_hls(hls_dir / "local.m3u8", output, work / "plain", opt.trace);
+      remux_plain_hls(hls_dir / "local.m3u8", output, media_work / "plain", opt.trace);
     }
 
     if (opt.download_subtitle) {
       log_out() << "\n# subtitle download\n";
-      download_subtitles(decoded, request_text, work, output, opt.download_user_agent,
+      download_subtitles(decoded, request_text, media_work, output, opt.download_user_agent,
                          opt.timeout, opt.retries, opt.subtitle_format, opt.trace);
     }
 

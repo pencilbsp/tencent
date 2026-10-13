@@ -138,6 +138,8 @@ int main(int argc, char** argv) {
                      "Thêm cost/cdn_strategy/dlipscene vào URL segment như native");
   getvinfo->add_flag("--download-subtitle", gv.download.download_subtitle,
                      "Tải phụ đề từ sfl.fi[] nếu phản hồi có");
+  getvinfo->add_flag("--no-cache", gv.download.no_cache,
+                     "Không giữ segment/phụ đề đã tải trong cache sau khi hoàn tất");
   auto* gv_subtitle_format =
       getvinfo->add_option("--subtitle-format", gv.download.subtitle_format,
                            "Định dạng phụ đề: vtt|srt|ass")
@@ -216,6 +218,8 @@ int main(int argc, char** argv) {
                            "Thay khoá XOR của cKey (hex)");
   download_cmd->add_flag("--no-download", dl.download.no_download,
                          "Chỉ giải mã và in thông tin, không tải segment");
+  download_cmd->add_flag("--no-cache", dl.download.no_cache,
+                         "Không giữ segment/phụ đề đã tải trong cache sau khi hoàn tất");
   download_cmd->add_flag("--trace", dl.download.trace, "In chi tiết các bước giải mã");
 
   // ── probe-url ──────────────────────────────────────────────────────────────
